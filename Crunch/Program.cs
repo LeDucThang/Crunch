@@ -32,12 +32,20 @@ namespace Crunch
             pages.Add(AppSettings.BaseUrl);
             for (int i = 1; i < AppSettings.PageNumber; i++)
             {
-                var pageElement = webDriver.FindElement(By.ClassName("component--results-info"));
-                var As = pageElement.FindElements(By.TagName("a"));
-                var Next = As[1];
-                string href = Next.GetAttribute("href");
-                pages.Add(href);
-                webDriver.Url = href;
+                try
+                {
+                    var pageElements = webDriver.FindElements(By.ClassName("component--results-info"));
+                    var pageElement = pageElements[1];
+                    var As = pageElement.FindElements(By.TagName("a"));
+                    var Next = As[1];
+                    string href = Next.GetAttribute("href");
+                    pages.Add(href);
+                    webDriver.Url = href;
+                }
+                catch (Exception ex)
+                {
+
+                }
             }
 
             foreach (string page in pages)
@@ -49,17 +57,21 @@ namespace Crunch
                 {
                     var a = element.FindElement(By.TagName("a"));
                     string href = a.GetAttribute("href");
-                    urls.Add(href);
+                    if (href.Contains("organization"))
+                        urls.Add(href);
                 }
             }
 
             foreach (string url in urls)
             {
+                Console.WriteLine(urls.IndexOf(url));
                 webDriver.Url = url;
                 Infomation Infomation = new Infomation();
                 Infomations.Add(Infomation);
                 Infomation.Url = url;
                 Thread.Sleep(2000);
+                var profileName = webDriver.FindElement(By.ClassName("profile-name"));
+                Infomation.CompanyName = profileName.Text;
                 var elements = webDriver.FindElements(By.TagName("profile-section"));
                 var About = elements[0];
                 var Highlights = elements[1];
@@ -69,6 +81,14 @@ namespace Crunch
                 {
                     var lis = About.FindElements(By.TagName("li"));
                     Infomation.Location = lis[0].Text;
+                    try
+                    {
+                        Infomation.Website = lis[4].Text;
+                    }
+                    catch(Exception ex)
+                    {
+
+                    }
                 }
 
                 //Highlights
@@ -139,25 +159,39 @@ namespace Crunch
             {
                 excel.Workbook.Worksheets.Add("Worksheet1");
                 var excelWorksheet = excel.Workbook.Worksheets["Worksheet1"];
-               
-                excelWorksheet.Cells[1, 1].Value = "URL";
-                excelWorksheet.Cells[1, 2].Value = "TotalFunding";
-                excelWorksheet.Cells[1, 3].Value = "Location";
-                excelWorksheet.Cells[1, 4].Value = "Industry";
-                excelWorksheet.Cells[1, 5].Value = "PhoneNumber";
-                excelWorksheet.Cells[1, 6].Value = "ContactEmail";
-                excelWorksheet.Cells[1, 7].Value = "OperatingStatus";
-                for(int i=0; i< Infomations.Count; i++)
+
+                int URLColumn = 1;
+                int CompanyNameColumn = 2;
+                int TotalFundingColumn = 3;
+                int LocationColumn = 4;
+                int WebsiteColumn = 5;
+                int IndustryColumn = 6;
+                int PhoneNumberColumn = 7;
+                int ContactEmailColumn = 8;
+                int OperatingStatusColumn = 9;
+
+                excelWorksheet.Cells[1, URLColumn].Value = "URL";
+                excelWorksheet.Cells[1, CompanyNameColumn].Value = "CompanyName";
+                excelWorksheet.Cells[1, TotalFundingColumn].Value = "TotalFunding";
+                excelWorksheet.Cells[1, LocationColumn].Value = "Location";
+                excelWorksheet.Cells[1, WebsiteColumn].Value = "Website";
+                excelWorksheet.Cells[1, IndustryColumn].Value = "Industry";
+                excelWorksheet.Cells[1, PhoneNumberColumn].Value = "PhoneNumber";
+                excelWorksheet.Cells[1, ContactEmailColumn].Value = "ContactEmail";
+                excelWorksheet.Cells[1, OperatingStatusColumn].Value = "OperatingStatus";
+                for (int i = 0; i < Infomations.Count; i++)
                 {
                     Infomation Infomation = Infomations[i];
-                    excelWorksheet.Cells[2 + i, 1].Value = Infomation.Url;
-                    excelWorksheet.Cells[2 + i, 2].Value = Infomation.TotalFunding;
-                    excelWorksheet.Cells[2 + i, 3].Value = Infomation.Location;
-                    excelWorksheet.Cells[2 + i, 4].Value = Infomation.Industry;
-                    excelWorksheet.Cells[2 + i, 5].Value = Infomation.PhoneNumber;
-                    excelWorksheet.Cells[2 + i, 6].Value = Infomation.ContactEmail;
-                    excelWorksheet.Cells[2 + i, 7].Value = Infomation.OperatingStatus;
-                }    
+                    excelWorksheet.Cells[2 + i, URLColumn].Value = Infomation.Url;
+                    excelWorksheet.Cells[2 + i, CompanyNameColumn].Value = Infomation.CompanyName;
+                    excelWorksheet.Cells[2 + i, TotalFundingColumn].Value = Infomation.TotalFunding;
+                    excelWorksheet.Cells[2 + i, LocationColumn].Value = Infomation.Location;
+                    excelWorksheet.Cells[2 + i, WebsiteColumn].Value = Infomation.Website;
+                    excelWorksheet.Cells[2 + i, IndustryColumn].Value = Infomation.Industry;
+                    excelWorksheet.Cells[2 + i, PhoneNumberColumn].Value = Infomation.PhoneNumber;
+                    excelWorksheet.Cells[2 + i, ContactEmailColumn].Value = Infomation.ContactEmail;
+                    excelWorksheet.Cells[2 + i, OperatingStatusColumn].Value = Infomation.OperatingStatus;
+                }
                 FileInfo excelFile = new FileInfo(@"result.xlsx");
                 excel.SaveAs(excelFile);
             }
@@ -166,9 +200,11 @@ namespace Crunch
 
     public class Infomation
     {
+        public string CompanyName { get; set; }
         public string Url { get; set; }
         public string TotalFunding { get; set; }
         public string Location { get; set; }
+        public string Website { get; set; }
         public string Industry { get; set; }
         public string PhoneNumber { get; set; }
         public string ContactEmail { get; set; }
