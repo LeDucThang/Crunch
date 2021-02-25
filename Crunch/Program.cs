@@ -64,95 +64,103 @@ namespace Crunch
 
             foreach (string url in urls)
             {
-                Console.WriteLine(urls.IndexOf(url));
-                webDriver.Url = url;
-                Infomation Infomation = new Infomation();
-                Infomations.Add(Infomation);
-                Infomation.Url = url;
-                Thread.Sleep(2000);
-                var profileName = webDriver.FindElement(By.ClassName("profile-name"));
-                Infomation.CompanyName = profileName.Text;
-                var elements = webDriver.FindElements(By.TagName("profile-section"));
-                var About = elements[0];
-                var Highlights = elements[1];
-                var RecentNews = elements[2];
-                var Details = elements[3];
-                // About
+                try
                 {
-                    var lis = About.FindElements(By.TagName("li"));
-                    Infomation.Location = lis[0].Text;
-                    try
+                    Console.WriteLine(urls.IndexOf(url));
+                    webDriver.Url = url;
+                    Infomation Infomation = new Infomation();
+                    Infomations.Add(Infomation);
+                    Infomation.Url = url;
+                    Thread.Sleep(2000);
+                    var profileName = webDriver.FindElement(By.ClassName("profile-name"));
+                    Infomation.CompanyName = profileName.Text;
+                    var elements = webDriver.FindElements(By.TagName("profile-section"));
+                    var About = elements[0];
+                    var Highlights = elements[1];
+                    var RecentNews = elements[2];
+                    var Details = elements[3];
+                    // About
                     {
-                        Infomation.Website = lis[4].Text;
-                    }
-                    catch(Exception ex)
-                    {
-
-                    }
-                }
-
-                //Highlights
-                {
-                    var As = Highlights.FindElements(By.TagName("a"));
-                    foreach (var a in As)
-                    {
-                        var label_with_info = a.FindElement(By.TagName("label-with-info"));
-                        var element = label_with_info.FindElement(By.XPath(".//span"));
-                        if (element.Text.Contains("Total Funding"))
-                        {
-                            var field_formatter = a.FindElement(By.TagName("field-formatter"));
-                            var span = field_formatter.FindElement(By.TagName("span"));
-                            Infomation.TotalFunding = span.Text;
-                            break;
-                        }
-                    }
-
-                }
-
-                //Details
-                {
-                    var lis = Details.FindElements(By.TagName("li"));
-                    foreach (var li in lis)
-                    {
+                        var lis = About.FindElements(By.TagName("li"));
+                        Infomation.Location = lis[0].Text;
                         try
                         {
-                            var label_with_info = li.FindElement(By.TagName("label-with-info"));
-                            var element = label_with_info.FindElement(By.XPath(".//span"));
-                            if (element.Text.Contains("Industries"))
-                            {
-                                var mat_chip = li.FindElement(By.TagName("mat-chip"));
-                                Infomation.Industry = mat_chip.Text;
-                                continue;
-                            }
-                            if (element.Text.Contains("Operating Status"))
-                            {
-                                var field_formatter = li.FindElement(By.TagName("field-formatter"));
-                                var span = field_formatter.FindElement(By.TagName("span"));
-                                Infomation.OperatingStatus = span.Text;
-                                continue;
-                            }
-                            if (element.Text.Contains("Contact Email"))
-                            {
-                                var field_formatter = li.FindElement(By.TagName("field-formatter"));
-                                var span = field_formatter.FindElement(By.TagName("span"));
-                                Infomation.ContactEmail = span.Text;
-                                continue;
-                            }
-                            if (element.Text.Contains("Phone Number"))
-                            {
-                                var field_formatter = li.FindElement(By.TagName("field-formatter"));
-                                var span = field_formatter.FindElement(By.TagName("span"));
-                                Infomation.PhoneNumber = span.Text;
-                                continue;
-                            }
+                            Infomation.Website = lis[4].Text;
                         }
-                        catch
+                        catch (Exception ex)
                         {
 
                         }
                     }
+
+                    //Highlights
+                    {
+                        var As = Highlights.FindElements(By.TagName("a"));
+                        foreach (var a in As)
+                        {
+                            var label_with_info = a.FindElement(By.TagName("label-with-info"));
+                            var element = label_with_info.FindElement(By.XPath(".//span"));
+                            if (element.Text.Contains("Total Funding"))
+                            {
+                                var field_formatter = a.FindElement(By.TagName("field-formatter"));
+                                var span = field_formatter.FindElement(By.TagName("span"));
+                                Infomation.TotalFunding = span.Text;
+                                break;
+                            }
+                        }
+
+                    }
+
+                    //Details
+                    {
+                        var lis = Details.FindElements(By.TagName("li"));
+                        foreach (var li in lis)
+                        {
+                            try
+                            {
+                                var label_with_info = li.FindElement(By.TagName("label-with-info"));
+                                var element = label_with_info.FindElement(By.XPath(".//span"));
+                                if (element.Text.Contains("Industries"))
+                                {
+                                    var mat_chip = li.FindElement(By.TagName("mat-chip"));
+                                    Infomation.Industry = mat_chip.Text;
+                                    continue;
+                                }
+                                if (element.Text.Contains("Operating Status"))
+                                {
+                                    var field_formatter = li.FindElement(By.TagName("field-formatter"));
+                                    var span = field_formatter.FindElement(By.TagName("span"));
+                                    Infomation.OperatingStatus = span.Text;
+                                    continue;
+                                }
+                                if (element.Text.Contains("Contact Email"))
+                                {
+                                    var field_formatter = li.FindElement(By.TagName("field-formatter"));
+                                    var span = field_formatter.FindElement(By.TagName("span"));
+                                    Infomation.ContactEmail = span.Text;
+                                    continue;
+                                }
+                                if (element.Text.Contains("Phone Number"))
+                                {
+                                    var field_formatter = li.FindElement(By.TagName("field-formatter"));
+                                    var span = field_formatter.FindElement(By.TagName("span"));
+                                    Infomation.PhoneNumber = span.Text;
+                                    continue;
+                                }
+                            }
+                            catch
+                            {
+
+                            }
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+
                 }
             }
+
 
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
             using (ExcelPackage excel = new ExcelPackage())
