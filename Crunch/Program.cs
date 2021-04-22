@@ -200,7 +200,7 @@ namespace Crunch
                     excelWorksheet.Cells[2 + i, ContactEmailColumn].Value = Infomation.ContactEmail;
                     excelWorksheet.Cells[2 + i, OperatingStatusColumn].Value = Infomation.OperatingStatus;
                 }
-                FileInfo excelFile = new FileInfo(@"result.xlsx");
+                FileInfo excelFile = new FileInfo(DateTime.Now.ToString("yyyyMMdd-hhmmss") + ".xlsx");
                 excel.SaveAs(excelFile);
             }
         }
